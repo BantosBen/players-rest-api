@@ -18,7 +18,6 @@ class AuthController
 
     public function login($request, $response)
     {
-        $token = $request->getHeader('Authorization');
         $requestData = json_decode($request->getBody());
         $message = array();
 
@@ -35,7 +34,7 @@ class AuthController
             if (password_verify($password, $hashedPassword)) {
                 $this->updateSessionToken($email);
                 $message['error'] = false;
-                $message['message'] = 'login Successfully, ' . $token;
+                $message['message'] = 'login Successfully, ';
                 $message['user'] = $this->getUserByEmail($email);
             } else {
                 $message['error'] = true;
@@ -126,5 +125,12 @@ class AuthController
         $sql = "SELECT * FROM `users` WHERE `session_token`='$token'";
         $result = $this->connection->query($sql);
         return $result->num_rows > 0;
+    }
+
+    public function isAuthorized($request){
+        $authHeader = $request->getHeader('Authorization');
+        $sessionToken = $authHeader[0];
+
+        return ($sessionToken != "" && $this->isTokenExists($sessionToken));
     }
 }
