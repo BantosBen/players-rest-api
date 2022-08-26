@@ -20,90 +20,126 @@ class Player
     }
 
 
-    public function getAllPlayers($response)
+    public function getAllPlayers($request, $response)
     {
-        $sql = "SELECT * FROM `players`";
-        $result = $this->connection->query($sql);
-
         $message = array();
-        if ($result->num_rows > 0) {
-            $players = array();
 
-            while ($player = $result->fetch_assoc()) {
-                array_push($players, $player);
+        if ($this->auth->isAuthorized($request)) {
+            $sql = "SELECT * FROM `players` ORDER BY RAND()";
+            $result = $this->connection->query($sql);
+
+            if ($result->num_rows > 0) {
+                $players = array();
+
+                while ($player = $result->fetch_assoc()) {
+                    array_push($players, $player);
+                }
+
+                $message['error'] = false;
+                $message['message'] = 'Player found';
+                $message['players'] = $players;
+            } else {
+                $message['error'] = true;
+                $message['message'] = 'No player found';
             }
 
-            $message['error'] = false;
-            $message['message'] = 'Player found';
-            $message['players'] = $players;
+            $response->getBody()->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
         } else {
             $message['error'] = true;
-            $message['message'] = 'No player found';
+            $message['message'] = 'UnAthorized Access';
+
+            $response->getBody()->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(401);
         }
-
-        $response->getBody()->write(json_encode($message));
-
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(200);
     }
 
-    public function getPlayerById($response, $args)
+    public function getPlayerById($request, $response, $args)
     {
-        $id = $args['id'];
-
-        $sql = "SELECT * FROM `players` WHERE `id`='$id'";
-        $result = $this->connection->query($sql);
-
         $message = array();
-        if ($result->num_rows > 0) {
 
-            while ($row = $result->fetch_assoc()) {
-                $player = $row;
+        if ($this->auth->isAuthorized($request)) {
+            $id = $args['id'];
+
+            $sql = "SELECT * FROM `players` WHERE `id`='$id'";
+            $result = $this->connection->query($sql);
+
+            if ($result->num_rows > 0) {
+
+                while ($row = $result->fetch_assoc()) {
+                    $player = $row;
+                }
+
+                $message['error'] = false;
+                $message['message'] = 'Player found';
+                $message['player'] = $player;
+            } else {
+                $message['error'] = true;
+                $message['message'] = 'No player found';
             }
 
-            $message['error'] = false;
-            $message['message'] = 'Player found';
-            $message['player'] = $player;
+            $response->getBody()->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
         } else {
             $message['error'] = true;
-            $message['message'] = 'No player found';
+            $message['message'] = 'UnAthorized Access';
+
+            $response->getBody()->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(401);
         }
-
-        $response->getBody()->write(json_encode($message));
-
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(200);
     }
 
-    public function getPlayersByGender($response, $args)
+    public function getPlayersByGender($request, $response, $args)
     {
-        $id = $args['id'];
-        
-        $sql = "SELECT * FROM `players`";
-        $result = $this->connection->query($sql);
-
         $message = array();
-        if ($result->num_rows > 0) {
-            $players = array();
 
-            while ($player = $result->fetch_assoc()) {
-                array_push($players, $player);
+        if ($this->auth->isAuthorized($request)) {
+            $gender = $args['gender'];
+
+            $sql = "SELECT * FROM `players` WHERE `gender`='$gender'";
+            $result = $this->connection->query($sql);
+
+            if ($result->num_rows > 0) {
+                $players = array();
+
+                while ($player = $result->fetch_assoc()) {
+                    array_push($players, $player);
+                }
+
+                $message['error'] = false;
+                $message['message'] = 'Player found';
+                $message['players'] = $players;
+            } else {
+                $message['error'] = true;
+                $message['message'] = 'No player found';
             }
 
-            $message['error'] = false;
-            $message['message'] = 'Player found';
-            $message['players'] = $players;
+            $response->getBody()->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
         } else {
             $message['error'] = true;
-            $message['message'] = 'No player found';
+            $message['message'] = 'UnAthorized Access';
+
+            $response->getBody()->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(401);
         }
-
-        $response->getBody()->write(json_encode($message));
-
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(200);
     }
 }
