@@ -3,7 +3,6 @@
 class Player
 {
     private $connection;
-    private $dbConnect;
     private $auth;
 
     /**
@@ -13,8 +12,8 @@ class Player
     {
         require_once dirname(__FILE__) . "/DbConnect.php";
         require_once dirname(__FILE__) . "/AuthController.php";
-        $this->dbConnect = new DBConnect;
-        $this->connection = $this->dbConnect->connect();
+        $dbConnect = new DBConnect;
+        $this->connection = $dbConnect->connect();
 
         $this->auth = new AuthController;
     }
@@ -124,6 +123,41 @@ class Player
             } else {
                 $message['error'] = true;
                 $message['message'] = 'No player found';
+            }
+
+            $response->getBody()->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
+        } else {
+            $message['error'] = true;
+            $message['message'] = 'UnAthorized Access';
+
+            $response->getBody()->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(401);
+        }
+    }
+
+    public function deletePlayersById($request, $response, $args)
+    {
+        $message = array();
+
+        if ($this->auth->isAuthorized($request)) {
+            $id = $args['id'];
+
+            $sql = "DELETE FROM `players` WHERE `id`='$id'";
+            $result = $this->connection->query($sql);
+
+            if ($result > 0) {
+                $message['error'] = false;
+                $message['message'] = 'Player deleted';
+            } else {
+                $message['error'] = true;
+                $message['message'] = 'Failed! Try again';
             }
 
             $response->getBody()->write(json_encode($message));
