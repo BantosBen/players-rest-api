@@ -127,10 +127,16 @@ class AuthController
         return $result->num_rows > 0;
     }
 
-    public function isAuthorized($request){
+    public function isAuthorized($request)
+    {
+        $sessionToken = $this->extractToken($request);
+        return ($sessionToken != "" && $this->isTokenExists($sessionToken));
+    }
+
+    public function extractToken($request)
+    {
         $authHeader = $request->getHeader('Authorization');
         $sessionToken = $authHeader[0];
-
-        return ($sessionToken != "" && $this->isTokenExists($sessionToken));
+        return $sessionToken;
     }
 }
