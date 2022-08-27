@@ -61,11 +61,9 @@ class User
         $message = array();
 
         if ($this->auth->isAuthorized($request)) {
-            $requestData = json_decode($request->getBody());
-            $email = $requestData->email;
             $sessionToken = $this->auth->extractToken($request);
 
-            $sql = "DELETE FROM `players` WHERE `session_token`='$sessionToken' AND `email`='$email'";
+            $sql = "DELETE FROM `players` WHERE `session_token`='$sessionToken'";
             $result = $this->connection->query($sql);
 
             if ($result > 0) {
