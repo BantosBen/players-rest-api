@@ -73,6 +73,15 @@ class AuthController
         }
     }
 
+    function getUserIdBySessionToken($token)
+    {
+        $sql = "SELECT * FROM `users` WHERE `session_token`='$token'";
+        $result = $this->connection->query($sql);
+        while ($record = $result->fetch_assoc()) {
+            return $record['id'];
+        }
+    }
+
 
     public function createAccount($request, $response)
     {
