@@ -3,11 +3,20 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
+use DI\ContainerBuilder;
 
 require __DIR__ . '/../vendor/autoload.php';
+
 require '../app/Controller/AuthController.php';
 require '../app/Controller/PlayerController.php';
 require '../app/Controller/UserController.php';
+
+$containerBuilder = new ContainerBuilder();
+$container = $containerBuilder->build();
+
+$container->set('upload_directory', __DIR__ . '/uploads');
+
+AppFactory::setContainer($container);
 
 $app = AppFactory::create();
 
@@ -53,14 +62,22 @@ $app->delete('/public/players/delete/{id}', function (Request $request, Response
 });
 
 $app->put('/public/account/update', function (Request $request, Response $response) {
-	$player = new User;
-	$response = $player->updateAccount($request, $response);
+	$user = new User;
+	$response = $user->updateAccount($request, $response);
 	return $response;
 });
 
-$app->delete('/public/account/delete', function (Request $request, Response $response) {
-	$player = new User;
-	$response = $player->deleteAccount($request, $response);
+$app->delete('/public/account/delete/{id}', function (Request $request, Response $response, array $args) {
+	$user = new User;
+	$response = $user->deleteAccount($request, $response, $args);
+	return $response;
+});
+
+$app->post('/public/account/upload', function (Request $request, Response $response) {
+	$user = new User;
+	$directory = $this->get('upload_directory');
+
+	$response = $user->uploadProfile($request, $response, $directory);
 	return $response;
 });
 
